@@ -9,6 +9,7 @@
         <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.6.0/build/ol.js" type="text/javascript"></script>
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js" type="text/javascript"></script>
+        <script src="js/csv_to_object.js"></script>    
 
         <style>
             /*
@@ -609,18 +610,40 @@
 
         <!-- Update data -->
         <script>
-            var xmlHttp = new XMLHttpRequest();
-            xmlHttp.open("GET", "https://data.opendevelopmentmekong.net/vi/api/3/action/datastore_search?resource_id=b15e8f4b-c905-48fb-973e-d412e2759f55", false ); // false for synchronous request
-            xmlHttp.send( null );
-            var data = xmlHttp.responseText;
-            var arrayData = JSON.parse(data)
+            // var xmlHttp = new XMLHttpRequest();
+            // xmlHttp.open("GET", "https://data.opendevelopmentmekong.net/vi/api/3/action/datastore_search?resource_id=b15e8f4b-c905-48fb-973e-d412e2759f55", false ); // false for synchronous request
+            // xmlHttp.send( null );
+            // var data = xmlHttp.responseText;
+
+            var rawFilevn = new XMLHttpRequest();
+            rawFilevn.open("GET", "cv19.csv", false); // false for synchronous request
+            rawFilevn.send(null);
+            var datacsvvn = rawFilevn.responseText;
+            var datajsonvn = $.csv.toObjects(datacsvvn);
+
+            var rawFilehn = new XMLHttpRequest();
+            rawFilehn.open("GET", "cv19hn.csv", false); // false for synchronous request
+            rawFilehn.send(null);
+            var datacsvhn = rawFilehn.responseText;
+            var datajsonhn = $.csv.toObjects(datacsvhn);
+
+            var rawFilehcm = new XMLHttpRequest();
+            rawFilehcm.open("GET", "cv19hcm.csv", false); // false for synchronous request
+            rawFilehcm.send(null);
+            var datacsvhcm = rawFilehcm.responseText;
+            var datajsonhcm = $.csv.toObjects(datacsvhcm);
+            // var datajson = Papa.parse(datacsv);
+            // console.log(datajson[0]['Số ca nhiễm']);
+
+            // var arrayData = JSON.parse(data);
             // console.log(arrayData['result']['records']);
             $.ajax({
                 type: "POST",
                 url: "Vietnam_pgsqlAPI.php",
-                data: {functionname: 'updateData', data: arrayData['result']['records']},
+                // data: {functionname: 'updateData', data: arrayData['result']['records']},
+                data: {functionname: 'updateData', datavn: datajsonvn, datahn: datajsonhn, datahcm: datajsonhcm},
                 success : function (result, status, erro) {
-                    // console.log(result);
+                    console.log(result);
                 }
             });
         </script>

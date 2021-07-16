@@ -13,7 +13,7 @@
         else if ($functionname == 'getInfoVNToAjax')
             $aResult = getInfoVNToAjax($paPDO, $paSRID, $paPoint);
         else if ($functionname == 'updateData')
-            $aResult = updateData($paPDO,$paSRID,$_POST['data']);
+            $aResult = updateData($paPDO,$paSRID,$_POST['datavn'], $_POST['datahn'], $_POST['datahcm']);
         else if($functionname=='getGeoCovidToAjax')
         // $aResult = getGeoCovidToAjax($paPDO,$paSRID,$paPoint);
             $aResult = getGeoCovidToAjax($paPDO,$paSRID,$pos,$_POST['min'],$_POST['max']);
@@ -96,18 +96,34 @@
         return json_encode($arr,JSON_UNESCAPED_UNICODE);
     }   
 
-    function updateData($paPDO,$paSRID,$dataCovid)
+    function updateData($paPDO,$paSRID,$dataCovid,$dataCovidHN, $dataCovidHCM)
     {
-	$fields = array('canhiem', 'dangdieutri', 'binhphuc', 'tuvong');
-        for ($i = 0; $i < 4; $i++) {
+        $fields = array('canhiem', 'binhphuc', 'tuvong');
+        for ($i = 0; $i < 3; $i++) {
             $mySQLStr1 = "ALTER TABLE \"gadm36_vnm_1\" ADD IF NOT EXISTS ".$fields[$i]." INT";
             $result1 = query($paPDO, $mySQLStr1);
         }
+        $mySQLStr1 = "ALTER TABLE \"covid_hanoi\" ADD IF NOT EXISTS canhiem INT";
+        $result1 = query($paPDO, $mySQLStr1);
+        $mySQLStr3 = "ALTER TABLE \"covid_hcm\" ADD IF NOT EXISTS canhiem INT";
+        $result3 = query($paPDO, $mySQLStr3);
         for ($i = 0; $i < 63; $i++){
             echo $i . ' - ';
-            $mySQLStr = "UPDATE \"gadm36_vnm_1\" SET canhiem = ".$dataCovid[$i]['Số ca nhiễm'].", dangdieutri = ".$dataCovid[$i]['Đang điều trị'].", binhphuc = ".$dataCovid[$i]['Bình phục'].", tuvong = ".$dataCovid[$i]['Tử vong']." WHERE hasc_1 = '".$dataCovid[$i]['HASC']."'";
-            print ($mySQLStr);
-            $result = query($paPDO, $mySQLStr);
+            $mySQLStr2 = "UPDATE \"gadm36_vnm_1\" SET canhiem = ".$dataCovid[$i]['Số ca nhiễm'].", binhphuc = ".$dataCovid[$i]['Bình phục'].", tuvong = ".$dataCovid[$i]['Tử vong']." WHERE hasc_1 = '".$dataCovid[$i]['HASC']."'";
+            print ($mySQLStr2);
+            $result = query($paPDO, $mySQLStr2);
+        }
+        for ($i = 0; $i < 24; $i++){
+            echo $i . ' - ';
+            $mySQLStr2 = "UPDATE \"covid_hanoi\" SET canhiem = ".$dataCovidHN[$i]['Số ca nhiễm']." WHERE name_2 = '".$dataCovidHN[$i]['Quận']."'";
+            print ($mySQLStr2);
+            $result = query($paPDO, $mySQLStr2);
+        }
+        for ($i = 0; $i < 24; $i++){
+            echo $i . ' - ';
+            $mySQLStr2 = "UPDATE \"covid_hcm\" SET canhiem = ".$dataCovidHCM[$i]['Số ca nhiễm']." WHERE name_2 = '".$dataCovidHCM[$i]['Quận']."'";
+            print ($mySQLStr2);
+            $result = query($paPDO, $mySQLStr2);
         }
     }
 
