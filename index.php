@@ -74,10 +74,66 @@
             right: 8px;
             }
             
+            .info{
+                font-family:'Poppins',sans-serif;
+                text-align:left;
+            }
+         
+            .info div label{
+                cursor: pointer;
+            }
+            .info div label input[type="checkbox"]{
+                display:none;
+            }
+            .info div label span{
+               position: relative;
+               display:inline-block;
+               background: #fff;
+                padding:5px 5px;
+                margin-block-end:10px;
+                color: #000;
+                text-shadow:0 1px 4px rgba(0,0,0,.5);
+                border-radius:0px;
+                font-size:13px;
+                transition:0.5s;
+                user-select:none;
+                width:100px;
+                height:100%;
+            }
+            .info div label span:before{
+                content:'';
+                width: 100%;
+                height:50%;
+                background: rgba(255,255,255,.1);
+            }
+            .info div:nth-child(1) label input[type="checkbox"]:checked ~ span{
+                background:#e6ff99;
+                color: #000;
+                box-shadow:0 2px 10px #e6ff99;
+            }
+            .info div:nth-child(2) label input[type="checkbox"]:checked ~ span{
+                background:yellow;
+                color:#000;
+                box-shadow:0 2px 20px yellow;
+            }
+            .info div:nth-child(3) label input[type="checkbox"]:checked ~ span{
+                background:orange;
+                color:#000;
+                box-shadow:0 2px 20px orange;
+            }
+            .info div:nth-child(4) label input[type="checkbox"]:checked ~ span{
+                background:red;
+                color: #000;;
+                box-shadow:0 2px 20px red;
+            }
 
             /* .ol-popup-closer:after {
             content: "✖";
             } */
+
+            body {
+                background-color:#FDF6F0
+            }
         </style>
 
     </head>
@@ -100,13 +156,22 @@
                     <input type="checkbox" id="cbHaNoi" name="covid" ><label for="cbHaNoi">Hà Nội</label><br>
                     <input type="checkbox" id="cbHCM" name="covid" ><label for="cbHCM">Tp.Hồ Chí Minh</label><br>
                     <br>
-                    <input type="checkbox" id="cbV1" name="covid" checked><label for="cbV1">Vùng 1 (1-5)</label><br>
-                    <input type="checkbox" id="cbV2" name="covid" checked><label for="cbV2">Vùng 2 (6-20)</label><br>
-                    <input type="checkbox" id="cbV3" name="covid" checked><label for="cbV3">Vùng 3 (21-50)</label><br>
-                    <input type="checkbox" id="cbV4" name="covid" checked><label for="cbV4">Vùng 4 (>50)</label><br>
-                    
+                    <div class="info">
+                        <div>
+                            <label name="covid" for="cbV1"><input id="cbV1" type="checkbox" checked><span>Vùng 1 (1-5)</span></label><br>
+                        </div> 
+                        <div>
+                            <label name="covid" for="cbV2"><input id="cbV2"  type="checkbox" checked><span>Vùng 2 (6-20)</span></label><br>
+                        </div>
+                        <div>
+                            <label name="covid" for="cbV3"><input type="checkbox" id="cbV3" checked><span>Vùng 3 (21-50)</span></label><br>
+                        </div>
+                        <div>
+                            <label name="covid" for="cbV4"><input type="checkbox" id="cbV4" checked><span>Vùng 4 (>50)</span></label><br>
+                        </div>
+                    </div>                    
                 </td>
-            </tr>
+         
         </table>
 
         <?php include 'Vietnam_pgsqlAPI.php' ?>
@@ -252,11 +317,16 @@
                         // map.addLayer(vectorLayer);
                         if(position=="VN")
                         layerCMR_adm1.setVisible(true);
-                        if(position=="HN")
-                        layerCovid_HaNoi.setVisible(true);
+                        if(position=="HN"){
+                            layerCovid_HaNoi.setVisible(true);
+                        }
+                        
+                        
                         if(position=="HCM")
                         layerCovid_HCM.setVisible(true);
                         
+
+
                         for(let i=0;i<5;i++){
                             // ADD ARR LAYER
                         if(position=="VN"){
@@ -314,6 +384,9 @@
                                 }
                             });
                         }
+
+                        
+                        
                     }
                     else{
                         // console.log("chua check")
@@ -454,14 +527,29 @@
                     if(pos=="VN"){
                         vectorSource.forEachFeature(function(feature){ vector_vn[type].setStyle(getstyle(type)[feature.getGeometry().getType()])})
                         vector_vn[type].setSource(vectorSource);
+                        if(vector_vn[0].getSource()!==null){
+                                var layerExtent = vector_vn[0].getSource().getExtent();
+                                map.getView().fit(layerExtent);
+                        }
                     }
                     if(pos=="HN"){
                         vectorSource.forEachFeature(function(feature){ vector_hn[type].setStyle(getstyle(type)[feature.getGeometry().getType()])})
                         vector_hn[type].setSource(vectorSource);
+                        // if(position=="HN"){
+                            if(vector_hn[0].getSource()!==null){
+                                var layerExtent = vector_hn[0].getSource().getExtent();
+                                map.getView().fit(layerExtent);
+                            }
+                            
+                        // }
                     }
                     if(pos=="HCM"){
                         vectorSource.forEachFeature(function(feature){ vector_hcm[type].setStyle(getstyle(type)[feature.getGeometry().getType()])})
                         vector_hcm[type].setSource(vectorSource);
+                        if(vector_hcm[0].getSource()!==null){
+                                var layerExtent = vector_hcm[0].getSource().getExtent();
+                                map.getView().fit(layerExtent);
+                            }
                     }
                     
                 }
