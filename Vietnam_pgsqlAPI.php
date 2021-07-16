@@ -4,9 +4,9 @@
     {
         $paPDO = initDB();
         $paSRID = '4326';
-        if(isset($P_POST['paPoint'])) $paPoint = $_POST['paPoint'];
+        if(isset($_POST['paPoint'])) $paPoint = $_POST['paPoint'];
         $functionname = $_POST['functionname'];
-        
+        if(isset($_POST['pos'])) $pos=$_POST['pos'];
         $aResult = "null";
         if ($functionname == 'getGeoVNToAjax')
             $aResult = getGeoVNToAjax($paPDO, $paSRID, $paPoint);
@@ -16,9 +16,7 @@
             $aResult = updateData($paPDO,$paSRID,$_POST['data']);
         else if($functionname=='getGeoCovidToAjax')
         // $aResult = getGeoCovidToAjax($paPDO,$paSRID,$paPoint);
-            $aResult = getGeoCovidToAjax($paPDO,$paSRID,$_POST['min'],$_POST['max']);
-        else if($functionname=='getLayermap')
-            $aResult = getLayermap($paPDO,$paSRID);
+            $aResult = getGeoCovidToAjax($paPDO,$paSRID,$pos,$_POST['min'],$_POST['max']);
         
         echo $aResult;
 
@@ -140,36 +138,41 @@
             return "null";
     }
 
-    function getGeoCovidToAjax($paPDO,$paSRID,$min,$max)
+    function getGeoCovidToAjax($paPDO,$paSRID,$pos,$min,$max)
     {
         // chinh o day la 1
-        $mySQLStr = "SELECT ST_AsGeoJson(geom)as geo, name_1, canhiem, dangdieutri, binhphuc, tuvong  from \"gadm36_vnm_1\" where canhiem>=$min and canhiem<=$max";
+        $option="";
+        $table="";
+        if($pos=="VN") {
+            $table="gadm36_vnm_1";
+            $option = ", name_1, canhiem, dangdieutri, binhphuc, tuvong";
+        }
+        if($pos=="HN") {
+            $table="covid_hanoi";
+            $option = ", name_2, canhiem";
+        }
+        if($pos=="HCM") {
+            $table="covid_hcm";
+            $option = ", name_2, canhiem";
+        }
 
+        if($min<0) $add1=""; 
+        else 
+            $add1=" where canhiem>=$min";
+
+        if($max<0) $add2="";
+        else 
+            $add2="  and canhiem<=$max";
+            
+        $mySQLStr = "SELECT ST_AsGeoJson(geom)as geo".$option." from \"".$table."\"".$add1.$add2;
+        // return $mySQLStr;
         $result = query($paPDO, $mySQLStr);
         $arr=[];
         foreach ($result as $item){
-        array_push($arr,$item);
-        // echo substr(str_replace('\\',null,json_encode($item['geo'])),1,-1) ."\n"; 
+            array_push($arr,$item);
         }
-        
-        return str_replace('}"','}',str_replace('"{','{',str_replace('\\',null,json_encode($arr,JSON_UNESCAPED_UNICODE))));
+        return json_encode($arr,JSON_UNESCAPED_UNICODE);
     }   
-
-    function getLayermap($paPDO,$paSRID)
-    {
-        // chinh o day la 1
-        $mySQLStr = "SELECT ST_AsGeoJson(geom)as geo, name_1, canhiem, dangdieutri, binhphuc, tuvong from \"gadm36_vnm_1\" ";
-
-        $result = query($paPDO, $mySQLStr);
-        $arr=[];
-        foreach ($result as $item){
-        array_push($arr,$item);
-        // echo substr(str_replace('\\',null,json_encode($item['geo'])),1,-1) ."\n"; 
-        }
-        
-        return str_replace('}"','}',str_replace('"{','{',str_replace('\\',null,json_encode($arr,JSON_UNESCAPED_UNICODE))));
-    }   
-
 
     function updateData($paPDO,$paSRID,$dataCovid)
     {

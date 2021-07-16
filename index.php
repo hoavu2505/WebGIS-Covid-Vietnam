@@ -31,7 +31,8 @@
             
             .ol-popup {
             position: absolute;
-            background-color: white;
+            background-color: rgb(242, 242, 242);
+            background-color: rgba(242, 242, 242, 0.7);
             -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
             filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
             padding: 15px;
@@ -73,6 +74,7 @@
             right: 8px;
             }
             
+
             /* .ol-popup-closer:after {
             content: "✖";
             } */
@@ -173,159 +175,157 @@
                 });
 
 
+                layerCovid_HaNoi.setVisible(false);
+                layerCovid_HCM.setVisible(false);
+
                 const highlightStyle = new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: '#f00',
-                    width: 2,
-                }),
-                fill: new ol.style.Fill({
-                    color: 'rgba(255,0,0,0.1)',
-                }),
-                text: new ol.style.Text({
-                    font: '12px Calibri,sans-serif',
-                    fill: new ol.style.Fill({
-                    color: '#000',
-                    }),
                     stroke: new ol.style.Stroke({
-                    color: '#f00',
-                    width: 3,
+                        color: 'black',
+                        width: 2,
                     }),
-                }),
-                });
-
-                var styles = {
-                    'MultiPolygon': new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: '#6699ff',
+                    }),
+                    text: new ol.style.Text({
+                        font: '12px Calibri,sans-serif',
                         fill: new ol.style.Fill({
-                            color: '#DDDDDD'
+                        color: '#000',
                         }),
                         stroke: new ol.style.Stroke({
-                            color: 'black', 
-                            width: 0.5
-                        })
-                    })
-                }; 
-
-                var styles1 = {
-                    'MultiPolygon': new ol.style.Style({
-                        fill: new ol.style.Fill({
-                            color: '#e6ff99'
+                        color: '#f00',
+                        width: 3,
                         }),
-                        stroke: new ol.style.Stroke({
-                            color: 'black', 
-                            width: 0.5
-                        })
-                    })
-                };
-
-                var styles2 = {
-                    'MultiPolygon': new ol.style.Style({
-                        fill: new ol.style.Fill({
-                            color: 'yellow'
-                        }),
-                        stroke: new ol.style.Stroke({
-                            color: 'black', 
-                            width: 0.5
-                        })
-                    })
-                };
-				
-                var styles3 = {
-                    'MultiPolygon': new ol.style.Style({
-                        fill: new ol.style.Fill({
-                            color: 'orange'
-                        }),
-                        stroke: new ol.style.Stroke({
-                            color: 'black', 
-                            width: 0.5
-                        })
-                    })
-                };
-
-                var styles4 = {
-                    'MultiPolygon': new ol.style.Style({
-                        fill: new ol.style.Fill({
-                            color: 'red'
-                        }),
-                        stroke: new ol.style.Stroke({
-                            color: 'black', 
-                            width: 0.5
-                        })
-                    })
-                };
-               
-                var styleFunction = function (feature) {
-                    return styles[feature.getGeometry().getType()];
-                };
-                var styleFunction1 = function (feature) {
-                    return styles1[feature.getGeometry().getType()];
-                };
-                var styleFunction2 = function (feature) {
-                    return styles2[feature.getGeometry().getType()];
-                };
-                var styleFunction3 = function (feature) {
-                    return styles3[feature.getGeometry().getType()];
-                };
-                var styleFunction4 = function (feature) {
-                    return styles4[feature.getGeometry().getType()];
-                };
-
-                var vectorLayer = new ol.layer.Vector({
-                    //source: vectorSource,
-                    style: styleFunction
-                });
-                var vectorLayer1 = new ol.layer.Vector({
-                    //source: vectorSource,
-                    style: styleFunction1
-                });
-                var vectorLayer2 = new ol.layer.Vector({
-                    //source: vectorSource,
-                    style: styleFunction2
-                });
-                var vectorLayer3 = new ol.layer.Vector({
-                    //source: vectorSource,
-                    style: styleFunction3
-                });
-                var vectorLayer4 = new ol.layer.Vector({
-                    //source: vectorSource,
-                    style: styleFunction4
+                    }),
                 });
 
-                // map.addLayer(vectorLayer);
-                // map.addLayer(vectorLayer1);
-                // map.addLayer(vectorLayer2);
-                // map.addLayer(vectorLayer3);
-                // map.addLayer(vectorLayer4);
-
-                $("#cbVietNam").change(function () {
-                    if($("#cbVietNam").is(":checked"))
-                    {
-                        layerCMR_adm1.setVisible(true);
+                var getstyle = function(type){
+                    let fillcl,strokecl='black';
+                    switch(type){
+                        case 0:
+                        {
+                            fillcl='#DDDDDD';
+                            break;
+                        }
+                        case 1:
+                        {
+                            fillcl='#e6ff99';
+                            break;
+                        }
+                        case 2:{
+                            fillcl='yellow';
+                            break;
+                        }
+                        case 3:{
+                            fillcl='orange';
+                            break;
+                        }
+                        case 4:{
+                            fillcl='red';
+                            break;
+                        }
                     }
-                    else{
-                        layerCMR_adm1.setVisible(false);
-                    }
+                    return {
+                        'MultiPolygon': new ol.style.Style({
+                            fill: new ol.style.Fill({
+                                color: fillcl
+                            }),
+                            stroke: new ol.style.Stroke({
+                                color: strokecl, 
+                                width: 0.5
+                            })
+                        })
+                    }          
                 }
-                );
+                
+                var vector_vn =[],vector_hn=[],vector_hcm = [];
+                // var vectorLayer = new ol.layer.Vector({});
 
-                $("#cbHaNoi").change(function () {
-                    if($("#cbHaNoi").is(":checked"))
-                    {
+                function view(check,position){
+                    if(check){
+                        // map.addLayer(vectorLayer);
+                        if(position=="VN")
+                        layerCMR_adm1.setVisible(true);
+                        if(position=="HN")
                         layerCovid_HaNoi.setVisible(true);
+                        if(position=="HCM")
+                        layerCovid_HCM.setVisible(true);
+                        for(let i=0;i<5;i++){
+                            // ADD ARR LAYER
+                        if(position=="VN"){
+                            vector_vn.push(new ol.layer.Vector({}));
+                            map.addLayer(vector_vn[i]);
+                        }
+                        if(position=="HN"){
+                            vector_hn.push(new ol.layer.Vector({}));
+                            map.addLayer(vector_hn[i]);
+                            vector_hn[i].setZIndex(99);
+                        }
+                        if(position=="HCM"){
+                            vector_hcm.push(new ol.layer.Vector({}));
+                            map.addLayer(vector_hcm[i]);
+                            vector_hcm[i].setZIndex(99);
+                        }
+
+                        let min1,max1,type=i;
+                        if(i==0) min1=-1,max1=-1;
+                        if(i==1) min1=1,max1=5;
+                        if(i==2) min1=6,max1=20;
+                        if(i==3) min1=21,max1=50;
+                        if(i==4) min1=51,max1=-1;
+                        
+                            $.ajax({
+                                type: "POST",
+                                url: "Vietnam_pgsqlAPI.php",
+                                //dataType: 'json',
+                                data: {functionname: 'getGeoCovidToAjax', pos: position, min: min1, max:max1},
+                                success : function (response) {
+                                
+                                response = response.replaceAll("\\",'').replaceAll('"{','{').replaceAll('}"','}');
+                                // console.log(response);
+                                var objJson = JSON.parse(response);
+                                if(objJson.length>0)
+                                highLightGeoJsonObj(createJsonObj(objJson),position,type);
+                                
+                                },
+                                error: function (req, status, error) {
+                                    alert(req + " " + status + " " + error);
+                                }
+                            });
+                        }
                     }
                     else{
+                        // console.log("chua check")
+                        if(position=="VN")
+                        layerCMR_adm1.setVisible(false);
+                        if(position=="HN")
                         layerCovid_HaNoi.setVisible(false);
-                    }
+                        if(position=="HCM")
+                        layerCovid_HCM.setVisible(false);
+                        // map.removeLayer(vectorLayer)
+                        for(let i=0;i<=5;i++){
+                            if(position=="VN")
+                            map.removeLayer(vector_vn[i]);
+                            if(position=="HN")
+                            map.removeLayer(vector_hn[i]);
+                            if(position=="HCM")
+                            map.removeLayer(vector_hcm[i]);
+                        }    
+                    }      
+                }
+                
+                view($("#cbVietNam").is(":checked"),"VN");
+                $("#cbVietNam").change(function(){
+                    
+                    view($("#cbVietNam").is(":checked"),"VN");
+                });
+            
+                $("#cbHaNoi").change(function () {
+                    view($("#cbHaNoi").is(":checked"),"HN");                    
                 }
                 );
 
                 $("#cbHCM").change(function () {
-                    if($("#cbHCM").is(":checked"))
-                    {
-                        layerCovid_HCM.setVisible(true);
-                    }
-                    else{
-                        layerCovid_HCM.setVisible(false);
-                    }
+                    view($("#cbHCM").is(":checked"),"HCM");
                 }
                 );
 
@@ -345,6 +345,7 @@
                                 + '"type": "Feature",'
                                 + '"properties": {"name_1": "'+data['name_1']
                                 // CHINH O DAY LA 2
+                                +'", "name_2":"'+data['name_2']
                                 +'", "canhiem":"'+data['canhiem']
                                 +'", "dangdieutri":"'+data['dangdieutri']
                                 +'", "binhphuc":"'+data['binhphuc']
@@ -374,79 +375,31 @@
                     $("#popup-content").html(result);
                 }
 
-                function highLightGeoJsonObj(paObjJson,type) {
+                function highLightGeoJsonObj(paObjJson,pos,type) {
                     var vectorSource = new ol.source.Vector({
                         features: (new ol.format.GeoJSON()).readFeatures(paObjJson, {
                             dataProjection: 'EPSG:4326',
                             featureProjection: 'EPSG:3857'
                         })
                     });
-                    console.log(vectorSource);
-                    if(type==0)
-                        vectorLayer.setSource(vectorSource);
-                    if(type==1)					
-					    vectorLayer1.setSource(vectorSource);
-                    if(type==2)
-                        vectorLayer2.setSource(vectorSource);
-                    if(type==3)
-                        vectorLayer3.setSource(vectorSource);
-                    if(type==4)
-                        vectorLayer4.setSource(vectorSource);
-                }
-
-                function highLightObj(result,type) {
-                    var strObjJson = createJsonObj(result);
-                    // console.log(strObjJson);
-                    var objJson = JSON.parse(strObjJson);
-                    // console.log(JSON.stringify(objJson));
-                    highLightGeoJsonObj(objJson,type);
-                }
-                let selected = null;
-
-                map.once('postrender', function(event) {
-                    // console.log("test")
-                    $.ajax({
-                            type: "POST",
-                            url: "Vietnam_pgsqlAPI.php",
-                            //dataType: 'json',
-                            data: {functionname: 'getLayermap'},
-                            success : function (response) {
-                               
-                               var objJson = JSON.parse(response);
-                               console.log(objJson);
-                            // console.log(objJson)
-                                highLightObj(objJson,0);
-                            },
-                            error: function (req, status, error) {
-                                alert(req + " " + status + " " + error);
-                            }
-                        });
-                    for(let i=1;i<5;i++){
-                    let min1;
-                    let max1;
-                    let type=i;
-                    if(i==1) min1=1,max1=5;
-                    if(i==2) min1=6,max1=20;
-                    if(i==3) min1=21,max1=50;
-                    if(i==4) min1=51,max1=9999999;
-                        $.ajax({
-                            type: "POST",
-                            url: "Vietnam_pgsqlAPI.php",
-                            //dataType: 'json',
-                            data: {functionname: 'getGeoCovidToAjax', min: min1, max:max1},
-                            success : function (response) {
-                               
-                               var objJson = JSON.parse(response);
-                            //    console.log(response);
-
-                                highLightObj(objJson,type);
-                            },
-                            error: function (req, status, error) {
-                                alert(req + " " + status + " " + error);
-                            }
-                        });
+                    
+                    // console.log(vectorLayer)
+                    if(pos=="VN"){
+                        vectorSource.forEachFeature(function(feature){ vector_vn[type].setStyle(getstyle(type)[feature.getGeometry().getType()])})
+                        vector_vn[type].setSource(vectorSource);
                     }
-                });
+                    if(pos=="HN"){
+                        vectorSource.forEachFeature(function(feature){ vector_hn[type].setStyle(getstyle(type)[feature.getGeometry().getType()])})
+                        vector_hn[type].setSource(vectorSource);
+                    }
+                    if(pos=="HCM"){
+                        vectorSource.forEachFeature(function(feature){ vector_hcm[type].setStyle(getstyle(type)[feature.getGeometry().getType()])})
+                        vector_hcm[type].setSource(vectorSource);
+                    }
+                    
+                }
+
+                let selected = null;
                 map.on('pointermove', function (e) {
                     if (selected !== null) {
                         selected.setStyle(undefined);
@@ -457,13 +410,21 @@
                         selected = f;
                         f.setStyle(highlightStyle);
                         // console.log(f['j']['varname_1']+"\n"+f['j']['canhiem']);
-                        displayObjInfo("<strong><center>" + f.getProperties()['name_1'] + "</center></strong>"
-                                    +"<br>Ca nhiễm: <label style= 'color: white; background-color: #CD113B; border-radius: 10px; padding: 3px' >" + f.getProperties()['canhiem'] + "</label><br>"
-                                    +"<br>Đang điều trị: <label style= 'color: white; background-color: #FFA900; border-radius: 25px; padding: 3px' >" + f.getProperties()['dangdieutri'] + "</label><br>"
-                                    +"<br>Bình phục: <label style= 'color: white; background-color: #50CB93; border-radius: 25px; padding: 3px' >" +f.getProperties()['binhphuc'] + "</label><br>"
-                                    +"<br>Tử vong: <label style= 'color: white; background-color: #2C2E43; border-radius: 25px; padding: 3px' >" +f.getProperties()['tuvong'] + "</label><br>"
-                                    , overlay.setPosition(e.coordinate));
-                        
+                        let content="";
+                        if(f.getProperties()['name_2']!=="undefined") 
+                            content +="<strong><center>" + f.getProperties()['name_2'] + "</center></strong>"
+                        else 
+                            content +="<strong><center>" + f.getProperties()['name_1'] + "</center></strong>";
+
+                        content += "<br>Ca nhiễm: <label style= 'color: white; background-color: #CD113B; border-radius: 10px; padding: 3px' >" + f.getProperties()['canhiem'] + "</label><br>"
+                        if(f.getProperties()['dangdieutri']!=="undefined")            
+                            content +="<br>Đang điều trị: <label style= 'color: white; background-color: #FFA900; border-radius: 25px; padding: 3px' >" + f.getProperties()['dangdieutri'] + "</label><br>"
+                        if(f.getProperties()['binhphuc']!=="undefined")
+                            content +="<br>Bình phục: <label style= 'color: white; background-color: #50CB93; border-radius: 25px; padding: 3px' >" +f.getProperties()['binhphuc'] + "</label><br>"
+                        if(f.getProperties()['tuvong']!=="undefined")
+                            content +="<br>Tử vong: <label style= 'color: white; background-color: #2C2E43; border-radius: 25px; padding: 3px' >" +f.getProperties()['tuvong'] + "</label><br>"
+                                    
+                        displayObjInfo(content, overlay.setPosition(e.coordinate));
                         return true;
                     });
                    
@@ -483,15 +444,6 @@
             var overlay = new ol.Overlay(/** @type {olx.OverlayOptions} */({
             element: container,
             }));
-            /**
-            * Add a click handler to hide the popup.
-            * @return {boolean} Don't follow the href.
-            */
-            // closer.onclick = function () {
-            // overlay.setPosition(undefined);
-            // closer.blur();
-            // return false;
-            // };
 
             container.onmouseover = function() {
                 overlay.setPosition(undefined);
