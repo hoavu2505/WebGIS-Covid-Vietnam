@@ -98,7 +98,13 @@
                 <td>
                     <input type="checkbox" id="cbVietNam" name="covid" checked><label for="cbVietNam">Việt Nam</label><br>
                     <input type="checkbox" id="cbHaNoi" name="covid" ><label for="cbHaNoi">Hà Nội</label><br>
-                    <input type="checkbox" id="cbHCM" name="covid" ><label for="cbHCM">Tp.Hồ Chí Minh</label>
+                    <input type="checkbox" id="cbHCM" name="covid" ><label for="cbHCM">Tp.Hồ Chí Minh</label><br>
+                    <br>
+                    <input type="checkbox" id="cbV1" name="covid" checked><label for="cbV1">Vùng 1 (1-5)</label><br>
+                    <input type="checkbox" id="cbV2" name="covid" checked><label for="cbV2">Vùng 2 (6-20)</label><br>
+                    <input type="checkbox" id="cbV3" name="covid" checked><label for="cbV3">Vùng 3 (21-50)</label><br>
+                    <input type="checkbox" id="cbV4" name="covid" checked><label for="cbV4">Vùng 4 (>50)</label><br>
+                    
                 </td>
             </tr>
         </table>
@@ -239,6 +245,7 @@
                 
                 var vector_vn =[],vector_hn=[],vector_hcm = [];
                 // var vectorLayer = new ol.layer.Vector({});
+                
 
                 function view(check,position){
                     if(check){
@@ -249,21 +256,36 @@
                         layerCovid_HaNoi.setVisible(true);
                         if(position=="HCM")
                         layerCovid_HCM.setVisible(true);
+                        
                         for(let i=0;i<5;i++){
                             // ADD ARR LAYER
                         if(position=="VN"){
                             vector_vn.push(new ol.layer.Vector({}));
+                            if(!$("#cbV"+i).is(":checked")&&i!=0){
+                                console.log("bo qua vung 1");
+                            }
+                            else
                             map.addLayer(vector_vn[i]);
                         }
                         if(position=="HN"){
                             vector_hn.push(new ol.layer.Vector({}));
-                            map.addLayer(vector_hn[i]);
-                            vector_hn[i].setZIndex(99);
+                            if(!$("#cbV"+i).is(":checked")&&i!=0){
+                                console.log("bo qua vung 1");
+                            }
+                            else
+                                map.addLayer(vector_hn[i]);
+                                vector_hn[i].setZIndex(99);
                         }
                         if(position=="HCM"){
                             vector_hcm.push(new ol.layer.Vector({}));
-                            map.addLayer(vector_hcm[i]);
-                            vector_hcm[i].setZIndex(99);
+                            if(!$("#cbV"+i).is(":checked")&&i!=0){
+                                console.log("bo qua vung 1");
+                            }
+                            else
+                                map.addLayer(vector_hcm[i]);
+                                vector_hcm[i].setZIndex(99);
+                            
+                            
                         }
 
                         let min1,max1,type=i;
@@ -304,18 +326,23 @@
                         // map.removeLayer(vectorLayer)
                         for(let i=0;i<=5;i++){
                             if(position=="VN")
-                            map.removeLayer(vector_vn[i]);
+                                map.removeLayer(vector_vn[i]);
                             if(position=="HN")
-                            map.removeLayer(vector_hn[i]);
+                                map.removeLayer(vector_hn[i]);
                             if(position=="HCM")
-                            map.removeLayer(vector_hcm[i]);
+                                map.removeLayer(vector_hcm[i]);
                         }    
+                        // DOAN NAY K CAN THIET
+                        if(position=="VN") vector_vn=[];
+                        if(position=="HN") vector_hn=[];
+                        if(position=="HCM") vector_hcm=[];
+
+                        // console.log(vector_vn.length);
                     }      
                 }
                 
                 view($("#cbVietNam").is(":checked"),"VN");
                 $("#cbVietNam").change(function(){
-                    
                     view($("#cbVietNam").is(":checked"),"VN");
                 });
             
@@ -328,6 +355,45 @@
                     view($("#cbHCM").is(":checked"),"HCM");
                 }
                 );
+
+                for(let i=1;i<5;i++)
+                $("#cbV"+i).change(function(){
+                    if(!$("#cbV"+i).is(":checked")){
+                        if($("#cbVietNam").is(":checked"))
+                            try{
+                                map.removeLayer(vector_vn[i]);
+                            }
+                            catch(E){}
+                        if($("#cbHaNoi").is(":checked"))
+                            try{
+                                map.removeLayer(vector_hn[i]);
+                            }
+                            catch(E){}
+                        if($("#cbHCM").is(":checked"))
+                            try{
+                                map.removeLayer(vector_hcm[i]);
+                            }
+                            catch(E){}
+                    }
+                    else{
+                        if($("#cbVietNam").is(":checked"))
+                        try{
+                            map.addLayer(vector_vn[i]);
+                        }
+                        catch(E){}
+                        if($("#cbHaNoi").is(":checked"))
+                        try{
+                            map.addLayer(vector_hn[i]);
+                        }
+                        catch(E){}
+                        if($("#cbHCM").is(":checked"))
+                        try{
+                            map.addLayer(vector_hcm[i]);
+                        }
+                        catch(E){}
+                    }
+
+                })
 
                 function createJsonObj(result) {                    
                     var geojsonObject = '{'
@@ -369,6 +435,7 @@
                     return geojsonObject;
                 }
 
+                
                 function displayObjInfo(result, coordinate)
                 {
 					// $("#info").html(result);
