@@ -67,7 +67,7 @@
         $table="";
         if($pos=="VN") {
             $table="gadm36_vnm_1";
-            $option = ", name_1, canhiem, dangdieutri, binhphuc, tuvong";
+            $option = ", name_1, canhiem, binhphuc, tuvong";
         }
         if($pos=="HN") {
             $table="covid_hanoi";

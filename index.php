@@ -573,8 +573,8 @@
                             content +="<strong><center>" + f.getProperties()['name_1'] + "</center></strong>";
 
                         content += "<br>Ca nhiễm: <label style= 'color: white; background-color: #CD113B; border-radius: 10px; padding: 3px' >" + f.getProperties()['canhiem'] + "</label><br>"
-                        if(f.getProperties()['dangdieutri']!=="undefined")            
-                            content +="<br>Đang điều trị: <label style= 'color: white; background-color: #FFA900; border-radius: 25px; padding: 3px' >" + f.getProperties()['dangdieutri'] + "</label><br>"
+                        // if(f.getProperties()['dangdieutri']!=="undefined")            
+                        //     content +="<br>Đang điều trị: <label style= 'color: white; background-color: #FFA900; border-radius: 25px; padding: 3px' >" + f.getProperties()['dangdieutri'] + "</label><br>"
                         if(f.getProperties()['binhphuc']!=="undefined")
                             content +="<br>Bình phục: <label style= 'color: white; background-color: #50CB93; border-radius: 25px; padding: 3px' >" +f.getProperties()['binhphuc'] + "</label><br>"
                         if(f.getProperties()['tuvong']!=="undefined")
