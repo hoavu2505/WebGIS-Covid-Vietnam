@@ -9,7 +9,6 @@
         <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.6.0/build/ol.js" type="text/javascript"></script>
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js" type="text/javascript"></script>
-        <script src="js/csv_to_object.js"></script>    
 
         <style>
             /*
@@ -131,10 +130,6 @@
             /* .ol-popup-closer:after {
             content: "✖";
             } */
-
-            body {
-                background-color:#FDF6F0
-            }
         </style>
 
     </head>
@@ -270,6 +265,18 @@
                     }),
                 });
 
+                var border = {
+                        'MultiPolygon': new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                color: "black", 
+                                width: 5
+                            })
+                        })
+                    }
+                var layerBorderHN = new ol.layer.Vector({});
+                var layerBorderHCM = new ol.layer.Vector({});
+                
+
                 var getstyle = function(type){
                     let fillcl,strokecl='black';
                     switch(type){
@@ -310,21 +317,22 @@
                 }
                 
                 var vector_vn =[],vector_hn=[],vector_hcm = [];
-                // var vectorLayer = new ol.layer.Vector({});
-                
 
                 function view(check,position){
+                    
                     if(check){
                         // map.addLayer(vectorLayer);
                         if(position=="VN")
                         layerCMR_adm1.setVisible(true);
                         if(position=="HN"){
+                            map.addLayer(layerBorderHN);
                             layerCovid_HaNoi.setVisible(true);
+                        }                                
+                        if(position=="HCM"){
+                            map.addLayer(layerBorderHCM);
+                            layerCovid_HCM.setVisible(true);
                         }
                         
-                        
-                        if(position=="HCM")
-                        layerCovid_HCM.setVisible(true);
                         
 
 
@@ -346,6 +354,7 @@
                             else
                                 map.addLayer(vector_hn[i]);
                                 vector_hn[i].setZIndex(99);
+                                
                         }
                         if(position=="HCM"){
                             vector_hcm.push(new ol.layer.Vector({}));
@@ -355,10 +364,8 @@
                             else
                                 map.addLayer(vector_hcm[i]);
                                 vector_hcm[i].setZIndex(99);
-                            
-                            
                         }
-
+                        
                         let min1,max1,type=i;
                         if(i==0) min1=-1,max1=-1;
                         if(i==1) min1=1,max1=5;
@@ -384,19 +391,12 @@
                                     alert(req + " " + status + " " + error);
                                 }
                             });
-                        }
+                            
 
-                        
+                        }
                         
                     }
                     else{
-                        // console.log("chua check")
-                        if(position=="VN")
-                        layerCMR_adm1.setVisible(false);
-                        if(position=="HN")
-                        layerCovid_HaNoi.setVisible(false);
-                        if(position=="HCM")
-                        layerCovid_HCM.setVisible(false);
                         // map.removeLayer(vectorLayer)
                         for(let i=0;i<=5;i++){
                             if(position=="VN")
@@ -407,10 +407,20 @@
                                 map.removeLayer(vector_hcm[i]);
                         }    
                         // DOAN NAY K CAN THIET
-                        if(position=="VN") vector_vn=[];
-                        if(position=="HN") vector_hn=[];
-                        if(position=="HCM") vector_hcm=[];
-
+                        if(position=="VN") {
+                            vector_vn=[];
+                            layerCMR_adm1.setVisible(false);
+                        }
+                        if(position=="HN") {
+                            map.removeLayer(layerBorderHN)
+                            vector_hn=[];
+                            layerCovid_HaNoi.setVisible(false);
+                        }
+                        if(position=="HCM"){
+                            map.removeLayer(layerBorderHCM)
+                            vector_hcm=[];
+                            layerCovid_HCM.setVisible(false);
+                        }
                         // console.log(vector_vn.length);
                     }      
                 }
@@ -481,6 +491,8 @@
                             + '"features": [';
                     if(Array.isArray(result)){
                         for(data of result){
+                            // console.log(JSON.stringify(result)+"OK")
+                            // console.log(JSON.stringify(data['geo']));
                         geojsonObject+='{'
                                 + '"type": "Feature",'
                                 + '"properties": {"name_1": "'+data['name_1']
@@ -499,6 +511,7 @@
                     }  
                     
                     else {
+                        // console.log(result+"OK")
                         geojsonObject+='{'
                                 + '"type": "Feature",'
                                 + '"geometry": ' + result
@@ -515,24 +528,42 @@
 					// $("#info").html(result);
                     $("#popup-content").html(result);
                 }
-
+                
+                // HIGHLIGHT--------------------------------------------------------
                 function highLightGeoJsonObj(paObjJson,pos,type) {
+                    // if(type==5||type==1) console.log(paObjJson)
                     var vectorSource = new ol.source.Vector({
                         features: (new ol.format.GeoJSON()).readFeatures(paObjJson, {
                             dataProjection: 'EPSG:4326',
                             featureProjection: 'EPSG:3857'
                         })
                     });
-                    
-                    // console.log(vectorLayer)
+
                     if(pos=="VN"){
-                        vectorSource.forEachFeature(function(feature){ vector_vn[type].setStyle(getstyle(type)[feature.getGeometry().getType()])})
-                        vector_vn[type].setSource(vectorSource);
-                        if(vector_vn[0].getSource()!==null){
-                                var layerExtent = vector_vn[0].getSource().getExtent();
-                                map.getView().fit(layerExtent);
+                    vectorSource.forEachFeature(function(feature){ 
+                        vector_vn[type].setStyle(getstyle(type)[feature.getGeometry().getType()]);
+                        // layerBorderHN
+                        if(feature.getProperties()['name_1']=="Hà Nội"){
+                            var vectorSource1 = new ol.source.Vector({});
+                            vectorSource1.addFeature(feature);
+                            layerBorderHN.setSource(vectorSource1);
+                            layerBorderHN.setStyle(border['MultiPolygon'])
+                            layerBorderHN.setZIndex(98);
                         }
+                        // layerBorderHCM
+                        if(feature.getProperties()['name_1']=="Hồ Chí Minh"){
+                            var vectorSource1 = new ol.source.Vector({});
+                            vectorSource1.addFeature(feature);
+                            layerBorderHCM.setSource(vectorSource1);
+                            layerBorderHCM.setStyle(border['MultiPolygon'])
+                            layerBorderHCM.setZIndex(98);
+                        }
+                        
+                        })
+                    vector_vn[type].setSource(vectorSource);
+                    // console.log(vectorSource.getFeatures()[4]);
                     }
+                    
                     if(pos=="HN"){
                         vectorSource.forEachFeature(function(feature){ vector_hn[type].setStyle(getstyle(type)[feature.getGeometry().getType()])})
                         vector_hn[type].setSource(vectorSource);
@@ -552,6 +583,8 @@
                                 map.getView().fit(layerExtent);
                             }
                     }
+
+                    
                     
                 }
 
